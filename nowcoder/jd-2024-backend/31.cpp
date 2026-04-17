@@ -24,7 +24,7 @@ int main() {
         }
     }
 
-    long long smallest_cost = numeric_limits<long long="">::max();
+    long long smallest_cost = numeric_limits<long long>::max();
     // 长度为n的序列存在n-1个切割点
     for (int i = 0; i < n - 1; i++) {
         // 左序列为[0, i]
