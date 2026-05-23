@@ -1,7 +1,7 @@
 class Solution {
 public:
     vector<int> getPicked(int index) {
-        vector<int> res;    
+        vector<int> res;
         int pick = 0;
         for (size_t i = index;i; i >>= 1) {
             if (i & 1) {
