@@ -5,7 +5,7 @@ private:
 struct Node
 {
     array<Node*, 26> children{};
-    bool value{false};
+    bool is_end{false};
 };
 
 Node* root_{};
@@ -21,10 +21,33 @@ static void DeleteTrie(Node* cur)
     delete cur;
 }
 
+static Node* DeleteKeyImpl(Node* cur, string_view sv)
+{
+    if (!cur) {
+        return nullptr;
+    }
+    if (sv.empty()) {
+        cur->is_end = false;
+    } else {
+        cur->children[sv[0]-'a'] = DeleteKeyImpl(cur->children[sv[0]-'a'], sv.substr(1));
+    }
+    // If the current node is the end of other words, Keep it
+    if (cur->is_end) {
+        return cur;
+    }
+    // If it's not the end and not assiociated with other nodes, delete it
+    for (size_t i = 0; i < cur->children.size(); i++) {
+        if (cur->children[i]) {
+            return cur;
+        }
+    }
+    delete cur;
+    return nullptr;
+}
+
 public:
-    Trie()
+    Trie() : root_(new Node)
     {
-        root_ = new Node;
     }
 
     ~Trie()
@@ -35,7 +58,7 @@ public:
     Trie(const Trie&) = delete;
     Trie& operator=(const Trie&) = delete;
 
-    void insert(string word)
+    void insert(const string& word)
     {
         Node* cur = root_;
         for (char c : word) {
@@ -44,10 +67,10 @@ public:
             }
             cur = cur->children[c-'a'];
         }
-        cur->value = true;
+        cur->is_end = true;
     }
 
-    bool search(string word)
+    bool search(const string& word) const
     {
         Node* cur = root_;
         for (char c : word) {
@@ -56,10 +79,10 @@ public:
             }
             cur = cur->children[c-'a'];
         }
-        return cur->value;
+        return cur->is_end;
     }
 
-    bool startsWith(string prefix)
+    bool startsWith(const string& prefix) const
     {
         Node* cur = root_;
         for (char c : prefix) {
@@ -69,6 +92,11 @@ public:
             cur = cur->children[c-'a'];
         }
         return true;
+    }
+
+    void DeleteKey(const string& word)
+    {
+        root_ = DeleteKeyImpl(root_, word);
     }
 };
 
