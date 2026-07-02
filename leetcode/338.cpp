@@ -1,8 +1,8 @@
 class Solution {
 public:
-    static int Popcnt(unsigned n)
+    static int Popcnt(uint32_t n)
     {
-        // 软件实现popcnt
+        // 软件实现popcnt（SWAR）
         n = (n & 0x55555555) + ((n >> 1) & 0x55555555);
         n = (n & 0x33333333) + ((n >> 2) & 0x33333333);
         n = (n & 0x0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f);
@@ -11,24 +11,67 @@ public:
         return n;
     }
 
-    vector<int> CountBitsStd(int n)
+    static int BrainKernighan(uint32_t n)
     {
-        // 使用builtin popcount
-        // 通常会被编译器优化成硬件指令
-        return std::views::iota(0, n+1)
-            | std::views::transform(std::popcount<unsigned>)
+        int res = 0;
+
+        while (n) {
+            n = n & (n-1);
+            res++;
+        }
+
+        return res;
+    }
+
+    template <bool UseHardwarePopcount = true>
+    vector<int> CountBitsImpl(uint32_t n)
+    {
+        auto popcnt = [](uint32_t x) {
+            if constexpr (UseHardwarePopcount)
+                return std::popcount(x);
+            else
+                return Popcnt(x);
+        };
+        return std::views::iota(0u, n+1)
+            | std::views::transform(popcnt)
             | std::ranges::to<std::vector>();
     }
 
-    vector<int> CountBitsImpl1(int n)
+    vector<int> CountBitsImpl2(uint32_t n)
     {
-        return std::views::iota(0, n+1)
-            | std::views::transform(Popcnt)
+        return std::views::iota(0u, n+1)
+            | std::views::transform(BrainKernighan)
             | std::ranges::to<std::vector>();
     }
 
-    vector<int> countBits(int n)
+    vector<int> CountBitsImpl3(uint32_t n)
     {
-        return CountBitsImpl1(n);
+        vector<int> res(n+1, 0);
+        int highBit = 0;
+
+        for (size_t i = 1; i <= n; i++) {
+            if ((i & (i-1)) == 0) {
+                highBit = i;
+            }
+            res[i] = res[i-highBit] + 1;
+        }
+
+        return res;
+    }
+
+    vector<int> CountBitsImpl4(uint32_t n)
+    {
+        vector<int> res(n+1, 0);
+
+        for (size_t i = 1; i <= n; i++) {
+            res[i] = res[i&(i-1)] + 1;
+        }
+
+        return res;
+    }
+
+    vector<int> countBits(uint32_t n)
+    {
+        return CountBitsImpl4(n);
     }
 };
