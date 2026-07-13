@@ -38,12 +38,60 @@ class Solution {
     }
 #endif
 public:
-    vector<int> postorderTraversal(TreeNode* root)
+    vector<int> postorderTraversalIter(TreeNode* root)
     {
         vector<int> res;
-        PostorderTraversal(root, res);
+        stack<TreeNode*> stk;
+
+        if (root) {
+            stk.push(root);
+        }
+        while (!stk.empty()) {
+            TreeNode* node = stk.top(); stk.pop();
+            res.push_back(node->val);
+            if (node->left) {
+                stk.push(node->left);
+            }
+            if (node->right) {
+                stk.push(node->right);
+            }
+        }
+        reverse(res.begin(), res.end());
         return res;
+    }
+
+    vector<int> postorderTraversalIterUniversal(TreeNode* root)
+    {
+        vector<int> res;
+        stack<pair<TreeNode*, bool>> stk;
+
+        stk.push({root, false});
+        while (!stk.empty()) {
+            auto [node, visited] = stk.top(); stk.pop();
+            if (!node) {
+                continue;
+            }
+            if (visited) {
+                res.push_back(node->val);
+            } else {
+                stk.push({node, true});
+                stk.push({node->right, false});
+                stk.push({node->left, false});
+            }
+        }
+        return res;
+    }
+
+    vector<int> postorderTraversal(TreeNode* root)
+    {
+        // vector<int> res;
+        // PostorderTraversal(root, res);
+        // return res;
 
         // return PostorderTraversal2(root);
+
+        return postorderTraversalIter(root);
+
+        // return postorderTraversalIterUniversal(root);
     }
 };

@@ -38,13 +38,61 @@ class Solution {
         return PreOrderTraversal2Impl(root) | ranges::to<vector<int>>();
     }
 #endif
+
+    vector<int> preorderTraversalIter(TreeNode* root)
+    {
+        vector<int> res;
+        stack<TreeNode*> stk;
+
+        if (root) {
+            stk.push(root);
+        }
+        while (!stk.empty()) {
+            TreeNode* node = stk.top(); stk.pop();
+            res.push_back(node->val);
+            if (node->right) {
+                stk.push(node->right);
+            }
+            if (node->left) {
+                stk.push(node->left);
+            }
+        }
+        return res;
+    }
+
+    vector<int> preorderTraversalIterUniversal(TreeNode* root)
+    {
+        vector<int> res;
+        stack<pair<TreeNode*, bool>> stk;
+
+        stk.push({root, false});
+        while (!stk.empty()) {
+            auto [node, visited] = stk.top(); stk.pop();
+            if (!node) {
+                continue;
+            }
+            if (visited) {
+                res.push_back(node->val);
+            } else {
+                stk.push({node->right, false});
+                stk.push({node->left, false});
+                stk.push({node, true});
+            }
+        }
+        return res;
+    }
+
 public:
     vector<int> preorderTraversal(TreeNode* root)
     {
-        vector<int> res;
-        PreOrderTraversal(root, res);
-        return res;
+        // vector<int> res;
+        // PreOrderTraversal(root, res);
+        // return res;
 
         // return PreOrderTraversal2(root);
+
+        return preorderTraversalIter(root);
+
+        // return preorderTraversalIterUniversal(root);
     }
 };

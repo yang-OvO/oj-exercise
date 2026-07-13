@@ -41,11 +41,57 @@ public:
     }
 #endif
 
-    vector<int> inorderTraversal(TreeNode* root)
+    vector<int> inorderTraversalIter(TreeNode* root)
     {
         vector<int> res;
-        InorderTraversalImpl(root, res);
+        stack<TreeNode*> stk;
+
+        TreeNode* cur = root;
+
+        while (cur || !stk.empty()) {
+            while (cur) {
+                stk.push(cur);
+                cur = cur->left;
+            }
+            cur = stk.top(); stk.pop();
+            res.push_back(cur->val);
+            cur = cur->right;
+        }
         return res;
+    }
+
+    vector<int> inorderTraversalIterUniversal(TreeNode* root)
+    {
+        vector<int> res;
+        stack<pair<TreeNode*, bool>> stk;
+
+        stk.push({root, false});
+        while (!stk.empty()) {
+            auto [node, visited] = stk.top(); stk.pop();
+            if (!node) {
+                continue;
+            }
+            if (visited) {
+                res.push_back(node->val);
+            } else {
+                stk.push({node->right, false});
+                stk.push({node, true});
+                stk.push({node->left, false});
+            }
+        }
+        return res;
+    }
+
+    vector<int> inorderTraversal(TreeNode* root)
+    {
+        // vector<int> res;
+        // InorderTraversalImpl(root, res);
+        // return res;
+
         // return InorderTraversal2(root);
+
+        return inorderTraversalIter(root);
+
+        // return inorderTraversalIterUniversal(root);
     }
 };
